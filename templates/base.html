@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mobile Phone Store{% endblock %}</title>
+    {% load static %}
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+</head>
+<body>
+
+    <!-- NAVIGATION BAR -->
+    <nav class="navbar">
+        <a href="/" class="logo">📱 PhoneStore</a>
+        <form method="GET" action="/" class="search-form">
+            <input type="text" name="q" placeholder="Search phones..." value="{{ request.GET.q }}">
+            <button type="submit">Search</button>
+        </form>
+        <div class="nav-links">
+            {% if user.is_authenticated %}
+                <a href="/cart/">🛒 Cart</a>
+                <a href="/orders/">My Orders</a>
+                <a href="/accounts/logout/">Logout</a>
+            {% else %}
+                <a href="/accounts/login/">Login</a>
+                <a href="/accounts/register/">Register</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- MAIN LAYOUT -->
+    <div class="main-layout">
+
+        <!-- BRAND SIDEBAR -->
+        <aside class="sidebar">
+            <h3>Brands</h3>
+            <ul>
+                <li><a href="/">All</a></li>
+                {% for brand in brands %}
+                    <li><a href="/?brand={{ brand.id }}">{{ brand.BrandName }}</a></li>
+                {% endfor %}
+            </ul>
+        </aside>
+
+        <!-- PAGE CONTENT -->
+        <main class="content">
+            {% block content %}
+            {% endblock %}
+        </main>
+
+    </div>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <p>&copy; 2025 PhoneStore. All rights reserved.</p>
+    </footer>
+
+</body>
+</html>

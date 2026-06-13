@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ product.ProductName }}{% endblock %}
+
+{% block content %}
+
+    <div class="detail-container">
+
+        <!-- Product Image -->
+        <div class="detail-image">
+            <img src="{{ product.ProductImage.url }}" alt="{{ product.ProductName }}">
+        </div>
+
+        <!-- Product Info -->
+        <div class="detail-info">
+            <p class="detail-brand">{{ product.Brand.BrandName }}</p>
+            <h1 class="detail-name">{{ product.ProductName }}</h1>
+            <p class="detail-price">TZS {{ product.Price }}</p>
+
+            <hr>
+
+            <h3>Description</h3>
+            <p>{{ product.Description }}</p>
+
+            <h3>Features</h3>
+            <p>{{ product.Features }}</p>
+
+            <hr>
+
+            <!-- Stock -->
+            {% if product.StockQuantity > 0 %}
+                <p class="in-stock">✅ In Stock ({{ product.StockQuantity }} available)</p>
+            {% else %}
+                <p class="out-stock">❌ Out of Stock</p>
+            {% endif %}
+
+            <hr>
+
+            <!-- Add to Cart Button -->
+            {% if user.is_authenticated %}
+                <form method="POST" action="/cart/add/{{ product.id }}/">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-primary">Add to Cart</button>
+                </form>
+            {% else %}
+                <a href="/accounts/login/" class="btn-secondary">Login to Add to Cart</a>
+            {% endif %}
+
+        </div>
+    </div>
+
+{% endblock %}

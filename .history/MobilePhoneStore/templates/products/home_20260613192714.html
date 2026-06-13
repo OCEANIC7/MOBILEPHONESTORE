@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+
+{% block title %}Home - Mobile Phone Store{% endblock %}
+
+{% block content %}
+
+    <h2 class="section-title">Latest Phones</h2>
+
+    {% if products %}
+        <div class="product-grid">
+            {% for product in products %}
+                <a href="/products/{{ product.id }}/" class="product-card">
+                    <img src="{{ product.ProductImage.url }}" alt="{{ product.ProductName }}">
+                    <div class="card-info">
+                        <p class="card-brand">{{ product.Brand.BrandName }}</p>
+                        <p class="card-name">{{ product.ProductName }}</p>
+                        <p class="card-price">TZS {{ product.Price }}</p>
+                    </div>
+                </a>
+            {% endfor %}
+        </div>
+    {% else %}
+        <p>No products found.</p>
+    {% endif %}
+
+{% endblock %}
