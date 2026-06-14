@@ -21,9 +21,7 @@
                 <a href="/cart/">🛒 Cart</a>
                 <a href="/orders/">My Orders</a>
                 <a href="/delivery/">📦 Track</a>
-                {% if user.is_staff %}
-                    <a href="/products/reports/">📊 Reports</a>
-                {% endif %}
+                {%%}
                 <a href="/accounts/logout/">Logout</a>
             {% else %}
                 <a href="/accounts/login/">Login</a>

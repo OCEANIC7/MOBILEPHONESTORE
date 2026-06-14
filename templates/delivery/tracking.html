@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+
+{% block title %}Delivery Tracking - Mobile Phone Store{% endblock %}
+
+{% block content %}
+
+    <h2 class="section-title">📦 Delivery Tracking</h2>
+
+    {% if tracking_data %}
+
+        {% for entry in tracking_data %}
+        <div class="tracking-card">
+
+            <!-- Order Header -->
+            <div class="tracking-header">
+                <span>Order <strong>#{{ entry.order.id }}</strong></span>
+                <span>{{ entry.order.OrderDate|date:"d M Y" }}</span>
+                <span>TZS {{ entry.order.GrandTotal }}</span>
+                <span class="badge badge-order">{{ entry.order.OrderStatus }}</span>
+            </div>
+
+            <!-- Delivery Info -->
+            {% if entry.delivery %}
+            <div class="tracking-body">
+
+                <div class="tracking-info">
+                    <p>
+                        <span class="info-label">Delivery Address</span>
+                        {{ entry.delivery.DeliveryAddress }}
+                    </p>
+                    <p>
+                        <span class="info-label">Shipping Zone</span>
+                        {{ entry.delivery.ShippingZone.LocationName }}
+                    </p>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="tracking-progress">
+                    {% with status=entry.delivery.DeliveryStatus %}
+
+                    <div class="progress-steps">
+
+                        <div class="step {% if status == 'Preparing' or status == 'In Transit' or status == 'Delivered' %}active{% endif %}">
+                            <div class="step-dot"></div>
+                            <p>Preparing</p>
+                        </div>
+
+                        <div class="step-line {% if status == 'In Transit' or status == 'Delivered' %}active{% endif %}"></div>
+
+                        <div class="step {% if status == 'In Transit' or status == 'Delivered' %}active{% endif %}">
+                            <div class="step-dot"></div>
+                            <p>In Transit</p>
+                        </div>
+
+                        <div class="step-line {% if status == 'Delivered' %}active{% endif %}"></div>
+
+                        <div class="step {% if status == 'Delivered' %}active{% endif %}">
+                            <div class="step-dot"></div>
+                            <p>Delivered</p>
+                        </div>
+
+                    </div>
+
+                    {% if status == 'Not Eligible' %}
+                        <p class="not-eligible">
+                            ⚠️ Payment required before delivery begins.
+                        </p>
+                    {% endif %}
+
+                    {% endwith %}
+                </div>
+
+            </div>
+            {% else %}
+                <p style="padding:16px; color:#888;">No delivery info found.</p>
+            {% endif %}
+
+        </div>
+        {% endfor %}
+
+    {% else %}
+        <div class="empty-cart">
+            <p>You have no orders to track.</p>
+            <a href="/" class="btn-secondary">Start Shopping</a>
+        </div>
+    {% endif %}
+
+{% endblock %}

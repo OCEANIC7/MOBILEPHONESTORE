@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block title %}Reports - Mobile Phone Store{% endblock %}
+
+{% block content %}
+
+    <h2 class="section-title">📊 Store Reports</h2>
+
+    <!-- Summary Cards -->
+    <div class="report-cards">
+
+        <div class="report-card">
+            <p class="report-label">Total Revenue</p>
+            <p class="report-value">TZS {{ total_sales }}</p>
+        </div>
+
+        <div class="report-card">
+            <p class="report-label">Total Orders</p>
+            <p class="report-value">{{ total_orders }}</p>
+        </div>
+
+    </div>
+
+    <!-- Best Sellers -->
+    <div class="report-section">
+        <h3>🏆 Best Selling Phones</h3>
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Rank</th>
+                    <th>Product</th>
+                    <th>Units Sold</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in best_sellers %}
+                <tr>
+                    <td>{{ forloop.counter }}</td>
+                    <td>{{ item.Product__ProductName }}</td>
+                    <td>{{ item.total_sold }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="3">No sales data yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Monthly Orders -->
+    <div class="report-section">
+        <h3>📅 Orders Per Month</h3>
+        <table class="orders-table">
+            <thead>
+                <tr>
+                    <th>Month</th>
+                    <th>Orders</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in monthly_orders %}
+                <tr>
+                    <td>{{ row.month }}</td>
+                    <td>{{ row.count }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="2">No data yet.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+{% endblock %}

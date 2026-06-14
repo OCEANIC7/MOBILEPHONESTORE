@@ -32,9 +32,9 @@ def product_detail(request, product_id):
         'product': product,
         'brands': brands,
     })
+    @staff_member_required
 
-@staff_member_required
-def reports(request):
+ reports(request):
     from orders.models import Order
     from payments.models import Payment
 

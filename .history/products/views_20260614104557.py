@@ -2,7 +2,7 @@ from django.shortcuts import render, get_object_or_404
 from .models import Product, Brand
 from django.contrib.admin.views.decorators import staff_member_required
 from django.db.models import Sum, Count
-from orders.models import CartItem
+from
 
 def home(request):
     brands = Brand.objects.all()
@@ -32,8 +32,7 @@ def product_detail(request, product_id):
         'product': product,
         'brands': brands,
     })
-
-@staff_member_required
+    @staff_member_required
 def reports(request):
     from orders.models import Order
     from payments.models import Payment
