@@ -56,4 +56,4 @@ def update_cart(request, item_id):
 def remove_from_cart(request, item_id):
     item = get_object_or_404(CartItem, id=item_id)
     item.delete()
-    return redirect('cart')
+    return redirect('cart')z
