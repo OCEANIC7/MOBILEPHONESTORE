@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+
+{% block title %}Checkout - Mobile Phone Store{% endblock %}
+
+{% block content %}
+
+    <h2 class="section-title">Checkout</h2>
+
+    <div class="checkout-layout">
+
+        <!-- LEFT: Order Summary -->
+        <div class="checkout-summary">
+            <h3>Order Summary</h3>
+            <table class="cart-table">
+                <thead>
+                    <tr>
+                        <th>Product</th>
+                        <th>Qty</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for item in items %}
+                    <tr>
+                        <td>{{ item.Product.ProductName }}</td>
+                        <td>{{ item.Quantity }}</td>
+                        <td>TZS {{ item.Product.Price }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+
+            <p class="summary-line">
+                Product Total: <strong>TZS {{ product_total }}</strong>
+            </p>
+        </div>
+
+        <!-- RIGHT: Checkout Form -->
+        <div class="checkout-form">
+            <h3>Delivery & Payment</h3>
+
+            <form method="POST">
+                {% csrf_token %}
+
+                <!-- Delivery Location -->
+                <div class="form-group">
+                    <label>Delivery Location</label>
+                    <select name="zone" required>
+                        <option value="">-- Select Location --</option>
+                        {% for zone in zones %}
+                            <option value="{{ zone.id }}">
+                                {{ zone.LocationName }} — TZS {{ zone.DeliveryCost }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+
+                <!-- Delivery Address -->
+                <div class="form-group">
+                    <label>Delivery Address</label>
+                    <textarea name="address" rows="3"
+                              placeholder="Street, Area, City..." required></textarea>
+                </div>
+
+                <!-- Payment Method -->
+                <div class="form-group">
+                    <label>Payment Method</label>
+
+                    <p class="payment-label">Mobile Money</p>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="M-Pesa" required>
+                            M-Pesa
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="Airtel Money">
+                            Airtel Money
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="Mixx by Yas">
+                            Mixx by Yas
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="HaloPesa">
+                            HaloPesa
+                        </label>
+                    </div>
+
+                    <p class="payment-label">Bank Card</p>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="Visa">
+                            Visa
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="MasterCard">
+                            MasterCard
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Totals -->
+                <div class="checkout-totals">
+                    <p>Product Total: <strong>TZS {{ product_total }}</strong></p>
+                    <p>Shipping Cost: <strong id="shipping-display">Select location</strong></p>
+                    <p class="grand-total">Grand Total: <strong id="grand-display">—</strong></p>
+                </div>
+
+                <button type="submit" class="btn-primary">Proceed to Payment</button>
+
+            </form>
+        </div>
+    </div>
+
+{% endblock %}
+
+<!-- Live Shipping Cost Calculator -->
+<script>
+    const zoneSelect = document.querySelector('select[name="zone"]');
+    const shippingDisplay = document.getElementById('shipping-display');
+    const grandDisplay = document.getElementById('grand-display');
+    const productTotal = {{ product_total }};
+
+    // Store zone costs from Django
+    const zoneCosts = {
+        {% for zone in zones %}
+            "{{ zone.id }}": {{ zone.DeliveryCost }},
+        {% endfor %}
+    };
+
+    zoneSelect.addEventListener('change', function () {
+        const selectedId = this.value;
+        if (selectedId && zoneCosts[selectedId] !== undefined) {
+            const shipping = zoneCosts[selectedId];
+            const grand = productTotal + shipping;
+            shippingDisplay.textContent = 'TZS ' + shipping.toLocaleString();
+            grandDisplay.textContent = 'TZS ' + grand.toLocaleString();
+        } else {
+            shippingDisplay.textContent = 'Select location';
+            grandDisplay.textContent = '—';
+        }
+    });
+</script>

@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment - Mobile Phone Store{% endblock %}
+
+{% block content %}
+
+    <h2 class="section-title">Complete Payment</h2>
+
+    <div class="payment-container">
+
+        <!-- Order Summary -->
+        <div class="payment-summary">
+            <h3>Order Summary</h3>
+
+            <div class="summary-row">
+                <span>Order Number</span>
+                <strong>#{{ order.id }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Product Total</span>
+                <strong>TZS {{ order.ProductTotal }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Shipping Cost</span>
+                <strong>TZS {{ order.ShippingCost }}</strong>
+            </div>
+            <div class="summary-row grand">
+                <span>Grand Total</span>
+                <strong>TZS {{ order.GrandTotal }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Payment Method</span>
+                <strong>{{ payment_method }}</strong>
+            </div>
+            <div class="summary-row">
+                <span>Order Status</span>
+                <strong class="status-pending">{{ order.OrderStatus }}</strong>
+            </div>
+        </div>
+
+        <!-- Payment Instructions -->
+        <div class="payment-instructions">
+            <h3>Payment Instructions</h3>
+
+            {% if payment_method == "M-Pesa" %}
+                <div class="instruction-box">
+                    <p>📱 <strong>M-Pesa Payment</strong></p>
+                    <ol>
+                        <li>Go to M-Pesa on your phone</li>
+                        <li>Select <strong>Lipa na M-Pesa</strong></li>
+                        <li>Select <strong>Pay Bill</strong></li>
+                        <li>Business No: <strong>123456</strong></li>
+                        <li>Account No: <strong>ORDER#{{ order.id }}</strong></li>
+                        <li>Amount: <strong>TZS {{ order.GrandTotal }}</strong></li>
+                    </ol>
+                </div>
+
+            {% elif payment_method == "Airtel Money" %}
+                <div class="instruction-box">
+                    <p>📱 <strong>Airtel Money Payment</strong></p>
+                    <ol>
+                        <li>Dial <strong>*150*60#</strong></li>
+                        <li>Select <strong>Pay Bill</strong></li>
+                        <li>Enter Business No: <strong>654321</strong></li>
+                        <li>Reference: <strong>ORDER#{{ order.id }}</strong></li>
+                        <li>Amount: <strong>TZS {{ order.GrandTotal }}</strong></li>
+                    </ol>
+                </div>
+
+            {% elif payment_method == "Mixx by Yas" %}
+                <div class="instruction-box">
+                    <p>📱 <strong>Mixx by Yas Payment</strong></p>
+                    <ol>
+                        <li>Open the Mixx by Yas app</li>
+                        <li>Select <strong>Send Money / Pay Bill</strong></li>
+                        <li>Merchant Code: <strong>789012</strong></li>
+                        <li>Reference: <strong>ORDER#{{ order.id }}</strong></li>
+                        <li>Amount: <strong>TZS {{ order.GrandTotal }}</strong></li>
+                    </ol>
+                </div>
+
+            {% elif payment_method == "HaloPesa" %}
+                <div class="instruction-box">
+                    <p>📱 <strong>HaloPesa Payment</strong></p>
+                    <ol>
+                        <li>Dial <strong>*150*88#</strong></li>
+                        <li>Select <strong>Malipo</strong></li>
+                        <li>Namba ya Biashara: <strong>345678</strong></li>
+                        <li>Kumbukumbu: <strong>ORDER#{{ order.id }}</strong></li>
+                        <li>Kiasi: <strong>TZS {{ order.GrandTotal }}</strong></li>
+                    </ol>
+                </div>
+
+            {% elif payment_method == "Visa" or payment_method == "MasterCard" %}
+                <div class="instruction-box">
+                    <p>💳 <strong>{{ payment_method }} Payment</strong></p>
+                    <p>You will be charged <strong>TZS {{ order.GrandTotal }}</strong></p>
+                    <p style="color:#888; font-size:13px; margin-top:8px;">
+                        Card processing is simulated in this version.
+                    </p>
+                </div>
+            {% endif %}
+
+            <!-- Confirm Payment Button -->
+            <form method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn-primary" style="margin-top:20px; width:100%;">
+                    ✅ Confirm Payment
+                </button>
+            </form>
+
+        </div>
+    </div>
+
+{% endblock %}
