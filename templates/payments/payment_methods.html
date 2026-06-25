@@ -1,0 +1,147 @@
+{% extends 'base.html' %}
+
+{% block title %}Payment Methods - Mobile Phone Store{% endblock %}
+
+{% block content %}
+
+    <h2 class="section-title">💳 My Payment Methods</h2>
+
+    <div class="payment-container">
+
+        <!-- Saved methods list -->
+        <div class="payment-summary">
+            <h3>Saved Methods</h3>
+
+            {% if saved_methods %}
+                {% for method in saved_methods %}
+                <div class="instruction-box" style="margin-bottom:12px;">
+                    <div class="summary-row" style="border-bottom:none; padding-bottom:4px;">
+                        <span>
+                            <strong>{{ method.PaymentMethod }}</strong>
+                            {% if method.IsDefault %}<span class="badge-default">default</span>{% endif %}
+                        </span>
+                    </div>
+                    <p style="font-size:13px; color:#555;">
+                        {% if method.is_mobile_money %}
+                            Phone: {{ method.PhoneNumber }}
+                        {% else %}
+                            {{ method.BankName }} •••• {{ method.BankAccountNumber|slice:"-4:" }}
+                        {% endif %}
+                    </p>
+                    <p style="font-size:13px; color:#555;">
+                        Control Number: <strong>{{ method.ControlNumber }}</strong>
+                    </p>
+
+                    <div style="display:flex; gap:8px; margin-top:10px;">
+                        {% if not method.IsDefault %}
+                        <form method="POST">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="set_default">
+                            <input type="hidden" name="method_id" value="{{ method.id }}">
+                            <button type="submit" class="btn-small">Make Default</button>
+                        </form>
+                        {% endif %}
+
+                        <form method="POST" onsubmit="return confirm('Remove this payment method?');">
+                            {% csrf_token %}
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="method_id" value="{{ method.id }}">
+                            <button type="submit" class="btn-small" style="background:#cc0000;">Delete</button>
+                        </form>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+                <p style="color:#888;">You have no saved payment methods yet.</p>
+            {% endif %}
+        </div>
+
+        <!-- Add a new method -->
+        <div class="payment-instructions">
+            <h3>Add a Payment Method</h3>
+
+            <form method="POST" id="add-method-form">
+                {% csrf_token %}
+                <input type="hidden" name="action" value="add">
+
+                <p class="payment-label">Mobile Money</p>
+                <div class="payment-options">
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="M-Pesa" required>
+                        M-Pesa
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="Airtel Money">
+                        Airtel Money
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="Mixx by Yas">
+                        Mixx by Yas
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="HaloPesa">
+                        HaloPesa
+                    </label>
+                </div>
+
+                <p class="payment-label">Bank Card</p>
+                <div class="payment-options">
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="Visa">
+                        Visa
+                    </label>
+                    <label class="payment-option">
+                        <input type="radio" name="payment_method" value="MasterCard">
+                        MasterCard
+                    </label>
+                </div>
+
+                <div class="form-group" id="phone-field" style="margin-top:16px; display:none;">
+                    <label>Phone Number</label>
+                    <input type="text" name="phone_number" placeholder="e.g. 0712 345 678">
+                </div>
+
+                <div id="card-fields" style="margin-top:16px; display:none;">
+                    <div class="form-group">
+                        <label>Bank Name</label>
+                        <input type="text" name="bank_name" placeholder="e.g. CRDB Bank">
+                    </div>
+                    <div class="form-group">
+                        <label>Bank Account Number</label>
+                        <input type="text" name="bank_account_number" placeholder="Account number">
+                    </div>
+                </div>
+
+                <label class="payment-option" style="width:100%; box-sizing:border-box;">
+                    <input type="checkbox" name="set_default">
+                    Make this my default payment method
+                </label>
+
+                <button type="submit" class="btn-primary" style="margin-top:16px; width:100%;">
+                    Save Payment Method
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const mobileMoneyMethods = ["M-Pesa", "Airtel Money", "Mixx by Yas", "HaloPesa"];
+        const cardMethods = ["Visa", "MasterCard"];
+        const radios = document.querySelectorAll('#add-method-form input[name="payment_method"]');
+        const phoneField = document.getElementById('phone-field');
+        const cardFields = document.getElementById('card-fields');
+
+        radios.forEach(radio => {
+            radio.addEventListener('change', function () {
+                if (mobileMoneyMethods.includes(this.value)) {
+                    phoneField.style.display = 'block';
+                    cardFields.style.display = 'none';
+                } else if (cardMethods.includes(this.value)) {
+                    phoneField.style.display = 'none';
+                    cardFields.style.display = 'block';
+                }
+            });
+        });
+    </script>
+
+{% endblock %}

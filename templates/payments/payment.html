@@ -28,86 +28,171 @@
                 <span>Grand Total</span>
                 <strong>TZS {{ order.GrandTotal }}</strong>
             </div>
+            {% if payment_method %}
             <div class="summary-row">
                 <span>Payment Method</span>
                 <strong>{{ payment_method }}</strong>
             </div>
+            {% endif %}
             <div class="summary-row">
                 <span>Order Status</span>
                 <strong class="status-pending">{{ order.OrderStatus }}</strong>
             </div>
         </div>
 
-        <!-- Payment Instructions -->
+        <!-- Payment Method / Instructions -->
         <div class="payment-instructions">
-            <h3>Payment Instructions</h3>
 
-            {% if payment_method == "M-Pesa" %}
-                <div class="instruction-box">
-                    <p>📱 <strong>M-Pesa Payment</strong></p>
-                    <ol>
-                        <li>Go to M-Pesa on your phone</li>
-                        <li>Select <strong>Lipa na M-Pesa</strong></li>
-                        <li>Select <strong>Pay Bill</strong></li>
-                        <li>Business No: <strong>123456</strong></li>
-                        <li>Account No: <strong>ORDER#{{ order.id }}</strong></li>
-                        <li>Amount: <strong>TZS {{ order.GrandTotal }}</strong></li>
-                    </ol>
-                </div>
+            {% if not payment_method %}
 
-            {% elif payment_method == "Airtel Money" %}
-                <div class="instruction-box">
-                    <p>📱 <strong>Airtel Money Payment</strong></p>
-                    <ol>
-                        <li>Dial <strong>*150*60#</strong></li>
-                        <li>Select <strong>Pay Bill</strong></li>
-                        <li>Enter Business No: <strong>654321</strong></li>
-                        <li>Reference: <strong>ORDER#{{ order.id }}</strong></li>
-                        <li>Amount: <strong>TZS {{ order.GrandTotal }}</strong></li>
-                    </ol>
-                </div>
+                <!-- STAGE 1: Choose a payment method -->
+                <h3>Choose a Payment Method</h3>
 
-            {% elif payment_method == "Mixx by Yas" %}
-                <div class="instruction-box">
-                    <p>📱 <strong>Mixx by Yas Payment</strong></p>
-                    <ol>
-                        <li>Open the Mixx by Yas app</li>
-                        <li>Select <strong>Send Money / Pay Bill</strong></li>
-                        <li>Merchant Code: <strong>789012</strong></li>
-                        <li>Reference: <strong>ORDER#{{ order.id }}</strong></li>
-                        <li>Amount: <strong>TZS {{ order.GrandTotal }}</strong></li>
-                    </ol>
-                </div>
-
-            {% elif payment_method == "HaloPesa" %}
-                <div class="instruction-box">
-                    <p>📱 <strong>HaloPesa Payment</strong></p>
-                    <ol>
-                        <li>Dial <strong>*150*88#</strong></li>
-                        <li>Select <strong>Malipo</strong></li>
-                        <li>Namba ya Biashara: <strong>345678</strong></li>
-                        <li>Kumbukumbu: <strong>ORDER#{{ order.id }}</strong></li>
-                        <li>Kiasi: <strong>TZS {{ order.GrandTotal }}</strong></li>
-                    </ol>
-                </div>
-
-            {% elif payment_method == "Visa" or payment_method == "MasterCard" %}
-                <div class="instruction-box">
-                    <p>💳 <strong>{{ payment_method }} Payment</strong></p>
-                    <p>You will be charged <strong>TZS {{ order.GrandTotal }}</strong></p>
-                    <p style="color:#888; font-size:13px; margin-top:8px;">
-                        Card processing is simulated in this version.
+                {% if default_method %}
+                    <p style="font-size:13px; color:#555; margin-bottom:12px;">
+                        ⭐ Your default method is <strong>{{ default_method.PaymentMethod }}</strong>
+                        ({{ default_method.masked_detail }}).
                     </p>
-                </div>
-            {% endif %}
+                {% endif %}
 
-            <!-- Confirm Payment Button -->
-            <form method="POST">
-                {% csrf_token %}
-                <button type="submit" class="btn-primary" style="margin-top:20px; width:100%;">
-                    ✅ Confirm Payment
-                </button>
-            </form>
+                <form method="POST">
+                    {% csrf_token %}
+                    <input type="hidden" name="choose_method" value="1">
+
+                    <p class="payment-label">Mobile Money</p>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="M-Pesa" required>
+                            M-Pesa
+                            {% if default_method.PaymentMethod == "M-Pesa" %}<span class="badge-default">default</span>{% endif %}
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="Airtel Money">
+                            Airtel Money
+                            {% if default_method.PaymentMethod == "Airtel Money" %}<span class="badge-default">default</span>{% endif %}
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="Mixx by Yas">
+                            Mixx by Yas
+                            {% if default_method.PaymentMethod == "Mixx by Yas" %}<span class="badge-default">default</span>{% endif %}
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="HaloPesa">
+                            HaloPesa
+                            {% if default_method.PaymentMethod == "HaloPesa" %}<span class="badge-default">default</span>{% endif %}
+                        </label>
+                    </div>
+
+                    <p class="payment-label">Bank Card</p>
+                    <div class="payment-options">
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="Visa">
+                            Visa
+                            {% if default_method.PaymentMethod == "Visa" %}<span class="badge-default">default</span>{% endif %}
+                        </label>
+                        <label class="payment-option">
+                            <input type="radio" name="payment_method" value="MasterCard">
+                            MasterCard
+                            {% if default_method.PaymentMethod == "MasterCard" %}<span class="badge-default">default</span>{% endif %}
+                        </label>
+                    </div>
+
+                    <button type="submit" class="btn-primary" style="margin-top:20px; width:100%;">
+                        Continue
+                    </button>
+                </form>
+
+            {% else %}
+
+                <!-- STAGE 2: Details + confirmation -->
+                <h3>{{ payment_method }} Details</h3>
+
+                {% if existing_saved_method %}
+
+                    <!-- A saved profile already exists for this method: reuse it -->
+                    <div class="instruction-box">
+                        <p>✅ <strong>Using your saved {{ payment_method }} details</strong></p>
+                        <p style="margin-top:8px;">
+                            {% if existing_saved_method.is_mobile_money %}
+                                Phone Number: <strong>{{ existing_saved_method.PhoneNumber }}</strong>
+                            {% else %}
+                                Bank: <strong>{{ existing_saved_method.BankName }}</strong><br>
+                                Account No: <strong>{{ existing_saved_method.BankAccountNumber }}</strong>
+                            {% endif %}
+                        </p>
+                        <p style="margin-top:8px;">
+                            Control Number: <strong>{{ existing_saved_method.ControlNumber }}</strong>
+                        </p>
+                        {% if existing_saved_method.IsDefault %}
+                            <p style="margin-top:8px; color:#0066cc;">⭐ This is your default payment method</p>
+                        {% endif %}
+                    </div>
+
+                    <form method="POST" style="margin-top:16px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="confirm_payment" value="1">
+                        <input type="hidden" name="saved_method_id" value="{{ existing_saved_method.id }}">
+
+                        {% if not existing_saved_method.IsDefault %}
+                        <label class="payment-option" style="width:100%; box-sizing:border-box;">
+                            <input type="checkbox" name="set_default">
+                            Make this my default payment method
+                        </label>
+                        {% endif %}
+
+                        <button type="submit" class="btn-primary" style="margin-top:16px; width:100%;">
+                            ✅ Confirm Payment
+                        </button>
+                    </form>
+
+                    <a href="{% url 'payment' %}?change=1" class="btn-secondary" style="margin-top:10px; display:block; text-align:center;">
+                        Use a different method
+                    </a>
+
+                {% else %}
+
+                    <!-- No saved profile yet for this method: collect details -->
+                    <div class="instruction-box">
+                        <p>A control number will be generated for you and reused on future payments with this method.</p>
+                    </div>
+
+                    <form method="POST" style="margin-top:16px;">
+                        {% csrf_token %}
+                        <input type="hidden" name="confirm_payment" value="1">
+
+                        {% if payment_method in mobile_money_methods %}
+                            <div class="form-group">
+                                <label>Phone Number</label>
+                                <input type="text" name="phone_number" placeholder="e.g. 0712 345 678" required>
+                            </div>
+                        {% else %}
+                            <div class="form-group">
+                                <label>Bank Name</label>
+                                <input type="text" name="bank_name" placeholder="e.g. CRDB Bank" required>
+                            </div>
+                            <div class="form-group">
+                                <label>Bank Account Number</label>
+                                <input type="text" name="bank_account_number" placeholder="Account number" required>
+                            </div>
+                        {% endif %}
+
+                        <label class="payment-option" style="width:100%; box-sizing:border-box;">
+                            <input type="checkbox" name="set_default">
+                            Make this my default payment method
+                        </label>
+
+                        <button type="submit" class="btn-primary" style="margin-top:16px; width:100%;">
+                            ✅ Save &amp; Confirm Payment
+                        </button>
+                    </form>
+
+                    <a href="{% url 'payment' %}?change=1" class="btn-secondary" style="margin-top:10px; display:block; text-align:center;">
+                        Use a different method
+                    </a>
+
+                {% endif %}
+
+            {% endif %}
 
         </div>
     </div>

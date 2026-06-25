@@ -73,7 +73,6 @@ def checkout(request):
     if request.method == 'POST':
         zone_id = request.POST.get('zone')
         address = request.POST.get('address')
-        payment_method = request.POST.get('payment_method')
 
         zone = get_object_or_404(ShippingZone, id=zone_id)
         shipping_cost = zone.DeliveryCost
@@ -97,8 +96,7 @@ def checkout(request):
             DeliveryStatus='Not Eligible',
         )
 
-        # Save payment method choice to session
-        request.session['payment_method'] = payment_method
+        # Move on to the payment step, where the method and its details are chosen
         request.session['order_id'] = order.id
 
         return redirect('payment')
